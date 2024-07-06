@@ -8,12 +8,12 @@ This repository **(mainly for personal learning)** is intended to reproduce the 
 
 This code is based on the currently released code of [LLaVA-NeXT](https://github.com/LLaVA-VL/LLaVA-NeXT) (including the LLaVA-NeXT model and associated data processing functions), and refer to the training code and scripts of the previous version ([LLaVA-v1.5](https://github.com/haotian-liu/LLaVA)), aiming to reproduce the training of LLaVA-NeXT with minimal changes.
 
-> In this repository, we copy the training code from [LLaVA-v1.5](https://github.com/haotian-liu/LLaVA) directly and modify it. Specifically, only `llava/train/train.py` and `llava/train/llava_trainer.py` have been modified, and the changes are annotated so that the readers can know the difference between this code and the code of LLaVA-v1.5.  
+> In this repository, we copy the training code from [LLaVA-v1.5](https://github.com/haotian-liu/LLaVA) directly and modify it. Specifically, only `llava/train/train.py` and `llava/train/llava_trainer.py` have been modified, and the changes are annotated so that the readers can know the difference between this code and the code of LLaVA-v1.5. 
+> 
 > For training scripts, they are listed in `scripts/next`. Currently, only the training scripts for vicuna-v1.5-7b (as the LLM backbone) are available, and we will update scripts for other models in the future.
 
-## ⏳ Models & Scripts
 
-### 🔧 Installation
+## 🔧 Installation
 
 #### 1. **Clone this repository and navigate to the LLaVA-NeXT folder:**
 ```bash
