@@ -49,7 +49,7 @@ We use a similar set of hyperparameters as Vicuna in finetuning.  Both hyperpara
 2. Finetuning
 
 | Hyperparameter | Global Batch Size | LLM lr |  Projector lr |  Vision Tower lr | Epochs | Max length | Weight decay |
-| --- | ---: | ---: | ---: | ---: | ---: |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
 | LLaVA-NeXT-Vicuna-7B | 128 | 2e-5 | 2e-5 | 2e-6 | 1 | 4096 | 0 |
 
 ### Pretrain (feature alignment)

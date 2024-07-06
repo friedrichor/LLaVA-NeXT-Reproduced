@@ -47,7 +47,7 @@ pip install flash-attn --no-build-isolation
 2. Finetuning
 
 | Hyperparameter | Global Batch Size | LLM lr |  Projector lr |  Vision Tower lr | Epochs | Max length | Weight decay |
-| --- | ---: | ---: | ---: | ---: | ---: |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
 | LLaVA-NeXT-Vicuna-7B | 128 | 2e-5 | 2e-5 | 2e-6 | 1 | 4096 | 0 |
 
 ### 预训练 (特征对齐)
