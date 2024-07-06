@@ -75,3 +75,9 @@ If you want to evaluate model performance via [open-compass/VLMEvalKit](https://
 ```bash
 bash convert_llava_next_weights_to_hf.sh
 ```
+
+## 🙏 Acknowledgments
+
+- [LLaVA](https://github.com/haotian-liu/LLaVA)
+- [LLaVA-NeXT](https://github.com/LLaVA-VL/LLaVA-NeXT)
+- [Open-LLaVA-NeXT](https://github.com/xiaoachen98/Open-LLaVA-NeXT)

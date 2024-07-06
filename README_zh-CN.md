@@ -73,3 +73,9 @@ bash scripts/next/vicuna-7b/finetune.sh
 ```bash
 bash convert_llava_next_weights_to_hf.sh
 ```
+
+## 🙏 致谢
+
+- [LLaVA](https://github.com/haotian-liu/LLaVA)
+- [LLaVA-NeXT](https://github.com/LLaVA-VL/LLaVA-NeXT)
+- [Open-LLaVA-NeXT](https://github.com/xiaoachen98/Open-LLaVA-NeXT)
