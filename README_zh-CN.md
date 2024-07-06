@@ -9,6 +9,7 @@
 我们引入 [LLaVA-NeXT](https://github.com/LLaVA-VL/LLaVA-NeXT) 目前提供的代码 (包括LLaVA-NeXT模型和相关的数据处理函数)， 并参考之前版本 ([LLaVA-v1.5](https://github.com/haotian-liu/LLaVA)) 以及的训练代码和脚本，旨在以最小的改动来复现 LLaVA-NeXT 的训练。
 
 > 在这个仓库中，我们直接将 [LLaVA-v1.5](https://github.com/haotian-liu/LLaVA) 的训练代码复制过来并进行更改。具体来说，只有 `llava/train/train.py` 和 `llava/train/llava_trainer.py` 被更改，且更改的部分均有注释，以便读者了解这个代码与LLaVA-v1.5的代码的区别。  
+> 
 > 对于训练脚本，我们添加的脚本在 `scripts/next`，目前仅提供了 vicuna-v1.5-7b 为 LLM 基座的训练脚本，未来我们将补充其它模型的脚本。
 
 ## 🔧 安装
