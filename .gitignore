@@ -1,0 +1,18 @@
+# Python
+__pycache__
+*.pyc
+*.egg-info
+
+# Editor
+.idea
+*.swp
+.vscode
+
+# Other
+wandb
+
+checkpoints
+playground/data
+
+.ipynb_checkpoints
+*.ipynb
