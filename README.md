@@ -8,20 +8,21 @@ This repository **(mainly for personal learning)** is intended to reproduce the 
 
 This code is based on the currently released code of [LLaVA-NeXT](https://github.com/LLaVA-VL/LLaVA-NeXT) (including the LLaVA-NeXT model and associated data processing functions), and refer to the training code and scripts of the previous version ([LLaVA-v1.5](https://github.com/haotian-liu/LLaVA)), aiming to reproduce the training of LLaVA-NeXT with minimal changes.
 
-> In this repository, we copy the training code from [LLaVA-v1.5](https://github.com/haotian-liu/LLaVA) directly and modify it. Specifically, only `llava/train/train.py` and `llava/train/llava_trainer.py` have been modified, and the changes are annotated so that the readers can know the difference between this code and the code of LLaVA-v1.5. 
-> 
+> In this repository, we copy the training code from [LLaVA-v1.5](https://github.com/haotian-liu/LLaVA) directly and modify it. Specifically, only `llava/train/train.py` and `llava/train/llava_trainer.py` have been modified, and the changes are annotated so that the readers can know the difference between this code and the code of LLaVA-v1.5.
+>
 > For training scripts, they are listed in `scripts/next`. Currently, only the training scripts for vicuna-v1.5-7b (as the LLM backbone) are available, and we will update scripts for other models in the future.
-
 
 ## 🔧 Installation
 
 #### 1. **Clone this repository and navigate to the LLaVA-NeXT folder:**
+
 ```bash
 git clone https://github.com/LLaVA-VL/LLaVA-NeXT
 cd LLaVA-NeXT
 ```
 
 #### 2. **Install the training package:**
+
 ```bash
 conda create -n llava python=3.10 -y
 conda activate llava
@@ -42,15 +43,15 @@ We use a similar set of hyperparameters as Vicuna in finetuning.  Both hyperpara
 
 1. Pretraining
 
-| Hyperparameter | Global Batch Size | Projector lr  | Epochs | Max length | Weight decay |
-| --- | ---: | ---: | ---: | ---: | ---: |
-| LLaVA-NeXT-Vicuna-7B | 256 | 1e-3 | 1 | 4096 | 0 |
+| Hyperparameter       | Global Batch Size | Projector lr | Epochs | Max length | Weight decay |
+| -------------------- | ----------------: | -----------: | -----: | ---------: | -----------: |
+| LLaVA-NeXT-Vicuna-7B |               256 |         1e-3 |      1 |       4096 |            0 |
 
 2. Finetuning
 
-| Hyperparameter | Global Batch Size | LLM lr |  Projector lr |  Vision Tower lr | Epochs | Max length | Weight decay |
-| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| LLaVA-NeXT-Vicuna-7B | 128 | 2e-5 | 2e-5 | 2e-6 | 1 | 4096 | 0 |
+| Hyperparameter       | Global Batch Size | LLM lr | Projector lr | Vision Tower lr | Epochs | Max length | Weight decay |
+| -------------------- | ----------------: | -----: | -----------: | --------------: | -----: | ---------: | -----------: |
+| LLaVA-NeXT-Vicuna-7B |               128 |   2e-5 |         2e-5 |            2e-6 |      1 |       4096 |            0 |
 
 ### Pretrain (feature alignment)
 
@@ -66,7 +67,9 @@ Pretrain takes around 4 hours for LLaVA-NeXT-Vicuna-7B on 8x H100 (80G)
 bash scripts/next/vicuna-7b/finetune.sh
 ```
 
-Visual instruction tuning (use llava_v1_5_mix665k) takes around 11.5 hours for LLaVA-NeXT-Vicuna-7B on 8x H100 (80G)
+Visual instruction tuning (use [llava_v1_5_mix665k](https://huggingface.co/datasets/liuhaotian/LLaVA-Instruct-150K/blob/main/llava_v1_5_mix665k.json)) takes around 11.5 hours for LLaVA-NeXT-Vicuna-7B on 8x H100 (80G)
+
+Visual instruction tuning (use [Open-LLaVA-NeXT-mix1M](https://huggingface.co/datasets/Lin-Chen/Open-LLaVA-NeXT-mix1M/blob/main/open-llava-next_instruct_mix1M.json)) takes around 17.5 hours for LLaVA-NeXT-Vicuna-7B on 8x H100 (80G)
 
 ### Convert Model Weightss
 

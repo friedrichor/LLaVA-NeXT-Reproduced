@@ -65,7 +65,9 @@ bash scripts/next/vicuna-7b/pretrain.sh
 bash scripts/next/vicuna-7b/finetune.sh
 ```
 
-视觉指令微调 (使用 llava_v1_5_mix665k 数据集) LLaVA-NeXT-Vicuna-7B 在 8x H100 (80G) 需要花费约 11.5 小时。
+视觉指令微调 (使用 [llava_v1_5_mix665k](https://huggingface.co/datasets/liuhaotian/LLaVA-Instruct-150K/blob/main/llava_v1_5_mix665k.json) 数据集) LLaVA-NeXT-Vicuna-7B 在 8x H100 (80G) 需要花费约 11.5 小时。
+
+视觉指令微调 (使用 [Open-LLaVA-NeXT-mix1M](https://huggingface.co/datasets/Lin-Chen/Open-LLaVA-NeXT-mix1M/blob/main/open-llava-next_instruct_mix1M.json) 数据集) LLaVA-NeXT-Vicuna-7B 在 8x H100 (80G) 需要花费约 17.5 小时。
 
 ### 转换模型权重
 
