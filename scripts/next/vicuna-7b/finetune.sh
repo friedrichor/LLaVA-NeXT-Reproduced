@@ -13,7 +13,7 @@ RUN_NAME='llava-next-vicuna-7b-sft'
 
 deepspeed llava/train/train_mem.py \
     --deepspeed ./scripts/zero3.json \
-    --model_name_or_path /mmu_nlp_hdd/kongfanheng/models/vicuna-7b-v1.5 \
+    --model_name_or_path lmsys/vicuna-7b-v1.5 \
     --version v1 \
     --data_path ${DATA_PATH} \
     --image_folder ${IMAGE_FOLDER} \
