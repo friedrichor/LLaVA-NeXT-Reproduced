@@ -3,6 +3,9 @@ set -x
 
 which python
 
+nnodes=1
+num_gpus=8
+
 DATA_ROOT='./playground/data'
 
 DATA_PATH=${DATA_ROOT}/llava/llava_pretrain/blip_laion_cc_sbu_558k.json
@@ -10,7 +13,7 @@ IMAGE_FOLDER=${DATA_ROOT}/llava/llava_pretrain/images
 
 RUN_NAME='llava-next-vicuna-7b-pretrain'
 
-deepspeed llava/train/train_mem.py \
+deepspeed --num_nodes ${nnodes} --num_gpus ${num_gpus} --master_port=10270 llava/train/train_mem.py \
     --deepspeed ./scripts/zero2.json \
     --model_name_or_path lmsys/vicuna-7b-v1.5 \
     --version plain \

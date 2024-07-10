@@ -379,19 +379,16 @@ def preprocess_llama_3(
     assert conv.sep_style == conversation_lib.SeparatorStyle.LLAMA_3
 
     # Mask targets
-    message_end = "<|eot_id|>"
-    sep = "<|eot_id|><|start_header_id|>assistant<|end_header_id|>\n\n"
-    # due to the nature of the llama 3 template (https://llama.meta.com/docs/model-cards-and-prompt-formats/meta-llama-3/#meta-llama-3-instruct),
-    # we can't divide a round directly; each role ends with "<|eot_id|>".
+    sep = conv.sep + "<|start_header_id|>assistant<|end_header_id|>\n\n" 
     for conversation, target in zip(conversations, targets):
         total_len = int(target.ne(tokenizer.pad_token_id).sum())
 
-        rounds = conversation.split(message_end)
+        rounds = conversation.split(conv.sep)
         re_rounds = [conv.sep.join(rounds[:3])] # system + user1 + assistant1
         for conv_idx in range(3, len(rounds), 2):
-            re_rounds.append(sep.join(rounds[conv_idx: conv_idx + 2])) # re_rounds: [system+user1+assistant1, user2+assistant2, ...]
-        
-        cur_len = 0
+            re_rounds.append(conv.sep.join(rounds[conv_idx: conv_idx + 2])) # re_rounds: [system+user1+assistant1, user2+assistant2, ...]
+
+        cur_len = 1
         target[:cur_len] = IGNORE_INDEX
         for i, rou in enumerate(re_rounds):
             if rou == "":
@@ -403,17 +400,18 @@ def preprocess_llama_3(
             parts[0] += sep
             
             if has_image:
-                round_len = len(tokenizer_image_token(rou, tokenizer)) + 1
-                instruction_len = len(tokenizer_image_token(parts[0], tokenizer))
+                round_len = len(tokenizer_image_token(rou, tokenizer))
+                instruction_len = len(tokenizer_image_token(parts[0], tokenizer)) - 1
             else:
-                round_len = len(tokenizer(rou).input_ids) + 1
-                instruction_len = len(tokenizer(parts[0]).input_ids)
-            
-            if i > 0:
-                round_len -= 1
-                instruction_len -= 1
+                round_len = len(tokenizer(rou).input_ids)
+                instruction_len = len(tokenizer(parts[0]).input_ids) - 1
+
+            if i != 0 and getattr(tokenizer, 'legacy', False) and IS_TOKENIZER_GREATER_THAN_0_14:
+                round_len += 1
+                instruction_len += 1
             
             target[cur_len: cur_len + instruction_len] = IGNORE_INDEX
+
             cur_len += round_len
 
         target[cur_len:] = IGNORE_INDEX
@@ -421,6 +419,7 @@ def preprocess_llama_3(
         if cur_len < tokenizer.model_max_length:
             if cur_len != total_len:
                 target[:] = IGNORE_INDEX
+                print(f"sources = {sources}")
                 print(
                     f"WARNING: tokenization mismatch: {cur_len} vs. {total_len}."
                     f" (ignored)"
@@ -1035,7 +1034,13 @@ def train(attn_implementation=None):
     elif model_args.version == "v0.5":
         tokenizer.pad_token = tokenizer.unk_token
     else:
-        tokenizer.pad_token = tokenizer.unk_token if tokenizer.unk_token is not None else tokenizer.eos_token    # change by friedrichor
+        if tokenizer.pad_token is None:  # change by friedrichor
+            rank0_print("Adding pad token as '<pad>'")
+            smart_tokenizer_and_embedding_resize(
+                special_tokens_dict=dict(pad_token="<pad>"),
+                tokenizer=tokenizer,
+                model=model,
+            )    
         if model_args.version in conversation_lib.conv_templates:
             conversation_lib.default_conversation = conversation_lib.conv_templates[model_args.version]
         else:
