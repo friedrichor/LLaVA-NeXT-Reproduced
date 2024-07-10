@@ -95,6 +95,7 @@ class Conversation:
             return ret
 
         elif self.sep_style == SeparatorStyle.LLAMA_3:
+            self.tokenizer = AutoTokenizer.from_pretrained("meta-llama/Meta-Llama-3-8B-Instruct")
             chat_template_messages = [{"role": "system", "content": self.system}]
             for role, message in messages:
                 if message:
@@ -104,7 +105,7 @@ class Conversation:
                     chat_template_messages.append({"role": role, "content": message})
 
             # print(chat_template_messages)
-            return self.tokenizer.apply_chat_template(chat_template_messages, tokenize=False, add_generation_prompt=True)
+            return self.tokenizer.apply_chat_template(chat_template_messages, tokenize=False, add_generation_prompt=False)
             # ret = "" if self.system == "" else self.system + self.sep + "\n"
             # for role, message in messages:
             #     if message:
@@ -202,9 +203,12 @@ class Conversation:
         else:
             raise ValueError(f"Invalid image_process_mode: {image_process_mode}")
 
+        if type(image) is not Image.Image:
+            image = Image.open(image).convert("RGB")
+
         max_hw, min_hw = max(image.size), min(image.size)
         aspect_ratio = max_hw / min_hw
-        max_len, min_len = 672, 448
+        max_len, min_len = 1008, 672
         shortest_edge = int(min(max_len / aspect_ratio, min_len, min_hw))
         longest_edge = int(shortest_edge * aspect_ratio)
         W, H = image.size
@@ -221,7 +225,7 @@ class Conversation:
             img_b64_str = base64.b64encode(buffered.getvalue()).decode()
             return img_b64_str
 
-    def get_images(self, return_pil=False):
+    def get_images(self, return_pil=False, return_path=False):
         images = []
         for i, (role, msg) in enumerate(self.messages[self.offset :]):
             if i % 2 == 0:
@@ -230,8 +234,10 @@ class Conversation:
                     if type(image) != list:
                         image = [image]
                     for img in image:
-                        img = self.process_image(img, image_process_mode, return_pil=return_pil)
-                        images.append(img)
+                        if not return_path:
+                            img = self.process_image(img, image_process_mode, return_pil=return_pil)
+                        else:
+                            images.append(img)
         return images
 
     def to_gradio_chatbot(self):
@@ -348,21 +354,16 @@ conv_llava_llama_2 = Conversation(
     sep2="</s>",
 )
 
-try:
-    llama3_tokenizer = AutoTokenizer.from_pretrained("/mmu_nlp_hdd/kongfanheng/models/Meta-Llama-3-8B-Instruct")
-except Exception as e:
-    print("Error loading llama3 tokenizer")
-    print(e)
-
 conv_llava_llama_3 = Conversation(
     system="You are a helpful language and vision assistant. " "You are able to understand the visual content that the user provides, " "and assist the user with a variety of tasks using natural language.",
-    roles=("<|start_header_id|>user", "<|start_header_id|>assistant"),
+    roles=("user", "assistant"),
     version="llama_v3",
     messages=[],
     offset=0,
+    sep="<|eot_id|>",
     sep_style=SeparatorStyle.LLAMA_3,
     tokenizer_id="meta-llama/Meta-Llama-3-8B-Instruct",
-    tokenizer=llama3_tokenizer,
+    tokenizer=AutoTokenizer.from_pretrained("meta-llama/Meta-Llama-3-8B-Instruct"),
     stop_token_ids=[128009],
 )
 
@@ -546,6 +547,7 @@ conv_templates = {
     "llava_mistral_instruct": conv_mistral_instruct,
     "mpt": conv_mpt,
     "qwen_1_5": conv_qwen,
+    "qwen_2": conv_qwen,
     "gemma_instruct": conv_gemma_instruct,
 }
 
