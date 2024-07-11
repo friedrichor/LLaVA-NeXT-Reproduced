@@ -118,6 +118,9 @@ def convert_llava_to_hf(model_id, mode, pytorch_dump_folder_path, push_to_hub=Fa
     elif model_id == "liuhaotian/llava-v1.6-34b":
         text_model_id = "NousResearch/Nous-Hermes-2-Yi-34B"
         image_token_index = 64000
+    elif "llama3-8b" in model_id:
+        text_model_id = "meta-llama/Meta-Llama-3-8B-Instruct"
+        image_token_index = 128257
     vision_model_id = data["mm_vision_tower"]
 
     torch.set_default_dtype(torch.float16)
@@ -125,11 +128,10 @@ def convert_llava_to_hf(model_id, mode, pytorch_dump_folder_path, push_to_hub=Fa
 
     use_fast = False if model_id == "liuhaotian/llava-v1.6-34b" else True
     tokenizer = AutoTokenizer.from_pretrained(text_model_id, use_fast=use_fast)
-    tokenizer.add_tokens(AddedToken("<image>", special=True, normalized=False), special_tokens=True)
-
-    if model_id == "liuhaotian/llava-v1.6-mistral-7b":
-        # Mistral-7B doesn't have a padding token set yet
+    if model_id == "liuhaotian/llava-v1.6-mistral-7b" or "llama3-8b" in model_id:
+        # Mistral-7B and LLaMA-3-8B don't have a padding token set yet
         tokenizer.add_special_tokens({"pad_token": "<pad>"})
+    tokenizer.add_tokens(AddedToken("<image>", special=True, normalized=False), special_tokens=True)
 
     image_processor = LlavaNextImageProcessor.from_pretrained(vision_model_id)
     processor = LlavaNextProcessor(tokenizer=tokenizer, image_processor=image_processor)
@@ -143,6 +145,9 @@ def convert_llava_to_hf(model_id, mode, pytorch_dump_folder_path, push_to_hub=Fa
 
     with init_empty_weights():
         model = LlavaNextForConditionalGeneration(config)
+    
+    if "llama3-8b" in model_id:
+        model.resize_token_embeddings(128257)
 
     # load original state dict
     state_dict = load_original_state_dict(model_id, mode)
@@ -159,10 +164,16 @@ def convert_llava_to_hf(model_id, mode, pytorch_dump_folder_path, push_to_hub=Fa
     # We add an image token so we resize the model
     # Pad to 64 for performance reasons
     pad_shape = 64
-    vocab_size = config.text_config.vocab_size
+    if "llama3-8b" in model_id:
+        vocab_size = len(tokenizer)
+    else:
+        vocab_size = config.text_config.vocab_size.ipynb_checkpoints
+    print(f"vocab_size = {vocab_size}")
     if model_id == "liuhaotian/llava-v1.6-34b":
         # this one has 3 additional tokens, namely <|startoftext|>, <|endoftext|> and <image>
         num_tokens = vocab_size + 3
+    elif "llama3-8b" in model_id:
+        num_tokens = vocab_size
     else:
         # this one has 2 additional tokens, namely <image> and <pad>
         num_tokens = vocab_size + 2
@@ -189,6 +200,8 @@ def convert_llava_to_hf(model_id, mode, pytorch_dump_folder_path, push_to_hub=Fa
         prompt = "A chat between a curious human and an artificial intelligence assistant. The assistant gives helpful, detailed, and polite answers to the human's questions. USER: <image>\nWhat is shown in this image? ASSISTANT:"
     elif model_id == "liuhaotian/llava-v1.6-34b":
         prompt = "<|im_start|>system\nAnswer the questions.<|im_end|><|im_start|>user\n<image>\nWhat is shown in this image?<|im_end|><|im_start|>assistant\n"
+    elif "llama3" in model_id:
+        prompt = "<|begin_of_text|><|start_header_id|>system<|end_header_id|>\n\nYou are a helpful language and vision assistant. You are able to understand the visual content that the user provides, and assist the user with a variety of tasks using natural language.<|eot_id|><|start_header_id|>user<|end_header_id|>\n\n<image>\nWhat is shown in this image?<|eot_id|><|start_header_id|>assistant<|end_header_id|>\n\n"
     inputs = processor(images=image, text=prompt, return_tensors="pt")
 
     # verify inputs
@@ -226,36 +239,6 @@ def convert_llava_to_hf(model_id, mode, pytorch_dump_folder_path, push_to_hub=Fa
         print("Shape of logits:", outputs.logits.shape)
         print("First values of logits:", outputs.logits[0, :3, :3])
 
-    #     if model_id == "liuhaotian/llava-v1.6-mistral-7b":
-    #         expected_slice = torch.tensor(
-    #             [[-4.8555, -4.6992, -0.1996], [-10.5703, -10.7344, -2.7246], [-7.0391, -7.3672, -0.2634]],
-    #             dtype=torch.float32,
-    #             device=device,
-    #         )
-    #     elif "vicuna-7b" in model_id:
-    #         expected_slice = torch.tensor(
-    #             [[1.4883, 0.9976, -0.6992], [-9.7031, -5.7031, -1.5557], [-5.1328, -5.5586, 8.8281]],
-    #             dtype=torch.float32,
-    #             device=device,
-    #         )
-    #     elif model_id == "liuhaotian/llava-v1.6-vicuna-13b":
-    #         expected_slice = torch.tensor(
-    #             [[-0.9614, 7.3125, 0.2106], [-7.2695, -8.5469, 3.6211], [-6.3750, -8.1875, 5.4688]],
-    #             dtype=torch.float32,
-    #             device=device,
-    #         )
-    #     elif model_id == "liuhaotian/llava-v1.6-34b":
-    #         expected_slice = torch.tensor(
-    #             [[-9.0859, -9.1406, 5.9453], [-5.9570, -5.9766, 2.2754], [-5.7305, -5.7539, 4.0000]],
-    #             dtype=torch.float32,
-    #             device=device,
-    #         )
-    #     else:
-    #         raise ValueError(f"Model {model_id} not supported")
-
-    #     assert torch.allclose(outputs.logits[0, :3, :3], expected_slice, atol=1e-4)
-    #     print("Logits are ok!")
-
     # verify generation
     output_ids = model.generate(
         **inputs,
@@ -266,19 +249,6 @@ def convert_llava_to_hf(model_id, mode, pytorch_dump_folder_path, push_to_hub=Fa
     generated_text = processor.batch_decode(output_ids, skip_special_tokens=True)[0].strip()
 
     print("Generated text:", repr(generated_text))
-
-    # if model_id == "liuhaotian/llava-v1.6-mistral-7b":
-    #     expected_text = '[INST]  \nWhat is shown in this image? [/INST] The image appears to be a radar chart, which is a type of multi-dimensional plot that displays data in the form of a two-dimensional chart of three or more quantitative variables represented on axes starting from the same point.\n\nIn this particular radar chart, there are several axes labeled with different metrics or benchmarks, such as "MMM-Vet," "MMM-Bench," "LLaVA-Bench," "SLED-Bench," "'
-    # elif "vicuna-7b" in model_id:
-    #     expected_text = """A chat between a curious human and an artificial intelligence assistant. The assistant gives helpful, detailed, and polite answers to the human\'s questions. USER:  \nWhat is shown in this image? ASSISTANT: The image appears to be a graphical representation of a benchmarking study comparing the performance of various models or systems. It\'s a scatter plot with a circular layout, where each point represents a different model or system, and the axes represent different metrics or dimensions of comparison.\n\nThe metrics are likely related to machine learning or artificial intelligence performance, as indicated by the terms like "BLIP-2," "Instruct BLIP," "POE," "QWA," "V"""
-    # elif model_id == "liuhaotian/llava-v1.6-vicuna-13b":
-    #     expected_text = "A chat between a curious human and an artificial intelligence assistant. The assistant gives helpful, detailed, and polite answers to the human's questions. USER:  \nWhat is shown in this image? ASSISTANT: The image appears to be a radar chart, also known as a spider chart or star chart, which is a graphical method of displaying multivariate data in the form of a two-dimensional chart of three or more quantitative variables represented on axes starting from the same point.\n\nIn this particular radar chart, there are several variables represented:\n\n- MM-Vet\n- LLa-Va-Bench\n- SEED-Bench\n- MM"
-    # elif model_id == "liuhaotian/llava-v1.6-34b":
-    #     expected_text = "<|im_start|> system\nAnswer the questions. <|im_start|> user\n\nWhat is shown in this image? <|im_start|> assistant\nThe image appears to be a radar chart, also known as a spider chart, which is a graphical method of displaying multivariate data in the form of a two-dimensional chart of three or more quantitative variables represented on axes starting from the same point.\n\nIn this particular chart, there are several datasets represented by different colors and labeled with various acronyms such as MM-Vet, LLaVA-Bench, SEED-Bench, MM-Bench-CN, MM-"
-    # else:
-    #     raise ValueError(f"Model {model_id} not supported")
-
-    # assert generated_text == expected_text
     print("Generated text is ok!")
 
     # verify batched generation
@@ -286,9 +256,15 @@ def convert_llava_to_hf(model_id, mode, pytorch_dump_folder_path, push_to_hub=Fa
     url = "http://images.cocodataset.org/val2017/000000039769.jpg"
     cats_image = Image.open(requests.get(url, stream=True).raw)
 
+    if "llama3-8b" in model_id:
+        cats_prompt = "<|start_header_id|>system<|end_header_id|>\n\nYou are a helpful language and vision assistant. You are able to understand the visual content that the user provides, and assist the user with a variety of tasks using natural language.<|eot_id|><|start_header_id|><|start_header_id|>user<|end_header_id|>\n\n<image>\nHow many cats are there?<|eot_id|><|start_header_id|>assistant<|end_header_id|>\n\n"
+        processor.tokenizer.padding_side = "left"
+    else:
+        cats_prompt = "[INST] <image>\nHow many cats are there? [/INST]"
+
     inputs = processor(
         images=[image, cats_image],
-        text=[prompt, "[INST] <image>\nHow many cats are there? [/INST]"],
+        text=[prompt, cats_prompt],
         padding=True,
         return_tensors="pt",
     ).to(device)
