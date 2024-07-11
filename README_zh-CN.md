@@ -14,10 +14,12 @@
 
 ## ⏳ ToDo
 
-- [X] Reproduce LLaVA-Next-Vicuna-7B
-- [X] Reproduce LLaVA-Next-LLaMA3-8B
-- [ ] Reproduce LLaVA-Next-Qwen2-7B
-- [ ] Support for SigLIP as the vision tower
+- [X] 复现 LLaVA-NeXT-Vicuna-7B
+- [X] 实现将 LLaVA-NeXT-Vicuna-7B 的权重转为 hf 版本
+- [X] 复现 LLaVA-NeXT-LLaMA3-8B
+- [X] 实现将 LLaVA-NeXT-LLaMA3-8B 的权重转为 hf 版本
+- [X] 支持 SigLIP 作为视觉编码器
+- [ ] 实现 LLaVA-NeXT-Qwen2-7B
 
 ## 🔧 安装
 
