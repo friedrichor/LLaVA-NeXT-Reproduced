@@ -11,18 +11,18 @@ DATA_ROOT='./playground/data'
 DATA_PATH=${DATA_ROOT}/llava/llava_sft/llava_v1_5_mix665k.json
 IMAGE_FOLDER=${DATA_ROOT}
 
-RUN_NAME='llava-next-llama3-8b-sft'
+RUN_NAME='llava-next-vicuna-7b-siglip-sft'
 
-deepspeed --num_nodes ${nnodes} --num_gpus ${num_gpus} --master_port=10273 llava/train/train_mem.py \
+deepspeed --num_nodes ${nnodes} --num_gpus ${num_gpus} --master_port=10271 llava/train/train_mem.py \
     --deepspeed ./scripts/zero3.json \
-    --model_name_or_path meta-llama/Meta-Llama-3-8B-Instruct \
-    --version llava_llama_3 \
+    --model_name_or_path lmsys/vicuna-7b-v1.5 \
+    --version v1 \
     --data_path ${DATA_PATH} \
     --image_folder ${IMAGE_FOLDER} \
-    --pretrain_mm_mlp_adapter ./checkpoints/llava-next-llama3-8b-pretrain/mm_projector.bin \
+    --pretrain_mm_mlp_adapter ./checkpoints/llava-next-vicuna-7b-siglip-pretrain/mm_projector.bin \
     --unfreeze_mm_vision_tower True \
     --mm_vision_tower_lr 2e-6 \
-    --vision_tower openai/clip-vit-large-patch14-336 \
+    --vision_tower google/siglip-so400m-patch14-384 \
     --mm_projector_type mlp2x_gelu \
     --mm_vision_select_layer -2 \
     --mm_use_im_start_end False \
