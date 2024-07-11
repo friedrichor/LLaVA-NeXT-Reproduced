@@ -22,7 +22,7 @@ deepspeed --num_nodes ${nnodes} --num_gpus ${num_gpus} --master_port=10273 llava
     --pretrain_mm_mlp_adapter ./checkpoints/llava-next-llama3-8b-pretrain/mm_projector.bin \
     --unfreeze_mm_vision_tower True \
     --mm_vision_tower_lr 2e-6 \
-    --vision_tower openai/clip-vit-large-patch14-336 \
+    --vision_tower google/siglip-so400m-patch14-384 \
     --mm_projector_type mlp2x_gelu \
     --mm_vision_select_layer -2 \
     --mm_use_im_start_end False \

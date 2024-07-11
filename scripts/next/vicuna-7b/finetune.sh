@@ -19,7 +19,7 @@ deepspeed --num_nodes ${nnodes} --num_gpus ${num_gpus} --master_port=10271 llava
     --version v1 \
     --data_path ${DATA_PATH} \
     --image_folder ${IMAGE_FOLDER} \
-    --pretrain_mm_mlp_adapter ./checkpoints/llava-next-vicuna-7b-pretrain/mm_projector.bin \ \
+    --pretrain_mm_mlp_adapter ./checkpoints/llava-next-vicuna-7b-pretrain/mm_projector.bin \
     --unfreeze_mm_vision_tower True \
     --mm_vision_tower_lr 2e-6 \
     --vision_tower openai/clip-vit-large-patch14-336 \

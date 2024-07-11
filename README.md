@@ -14,10 +14,13 @@ This code is based on the currently released code of [LLaVA-NeXT](https://github
 
 ## ⏳ ToDo
 
-- [X] Reproduce LLaVA-Next-Vicuna-7B
-- [X] Reproduce LLaVA-Next-LLaMA3-8B
-- [ ] Reproduce LLaVA-Next-Qwen2-7B
-- [ ] Support for SigLIP as the vision tower
+- [X] Reproduce LLaVA-NeXT-Vicuna-7B
+- [X] Weight conversion for LLaVA-NeXT-Vicuna-7B
+- [X] Reproduce LLaVA-NeXT-LLaMA3-8B
+- [X] Weight conversion for LLaVA-NeXT-LLaMA3-8B
+- [X] Support for SigLIP as the vision tower
+- [ ] Reproduce LLaVA-NeXT-Qwen2-7B
+
 
 ## 🔧 Installation
 
