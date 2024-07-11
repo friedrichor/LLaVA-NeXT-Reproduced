@@ -15,9 +15,9 @@ This code is based on the currently released code of [LLaVA-NeXT](https://github
 ## ⏳ ToDo
 
 - [X] Reproduce LLaVA-NeXT-Vicuna-7B
-- [X] Support for converting LLaVA-NeXT-Vicuna-7B weights to hf version
+- [X] Implement to convert the weights of LaVA-NeXT-Vicuna-7B to hf version
 - [X] Reproduce LLaVA-NeXT-LLaMA3-8B
-- [X] Support for converting LLaVA-NeXT-LLaMA3-8B weights to hf version
+- [X] Implement to convert the weights of LLaVA-NeXT-LLaMA3-8B to hf version
 - [X] Support for SigLIP as the vision tower
 - [ ] Reproduce LLaVA-NeXT-Qwen2-7B
 
